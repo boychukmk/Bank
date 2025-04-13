@@ -1,74 +1,46 @@
 from datetime import date
 from decimal import Decimal
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, Field, validator
 
 
-class UserBase(BaseModel):
+class UserCSV(BaseModel):
+    id: int
     login: str
     registration_date: date
 
 
-class UserCreate(UserBase):
-    pass
-
-
-class UserRead(UserBase):
+class CreditCSV(BaseModel):
     id: int
-
-
-class CreditBase(BaseModel):
     user_id: int
     issuance_date: date
     return_date: date
-    actual_return_date: date | None
-    body: Decimal
-    percent: Decimal
+    actual_return_date: Optional[date]
+    body: float
+    percent: float
 
 
-class CreditCreate(CreditBase):
-    pass
-
-
-class CreditRead(CreditBase):
+class DictionaryCSV(BaseModel):
     id: int
-
-
-class DictionaryBase(BaseModel):
     name: str
 
 
-class DictionaryCreate(DictionaryBase):
-    pass
-
-
-class DictionaryRead(DictionaryBase):
+class PlanCSV(BaseModel):
     id: int
-
-
-class PlanBase(BaseModel):
     period: date
-    sum: Decimal
+    sum: Decimal = Field(..., gt=0)
     category_id: int
 
+    @validator("period")
+    def must_be_first_day(cls, v: date):
+        if v.day != 1:
+            raise ValueError("Period must be the first day of the month")
+        return v
 
-class PlanCreate(PlanBase):
-    pass
 
-
-class PlanRead(PlanBase):
+class PaymentCSV(BaseModel):
     id: int
-
-
-class PaymentBase(BaseModel):
-    sum: Decimal
+    sum: Decimal = Field(..., gt=0)
     payment_date: date
     credit_id: int
     type_id: int
-
-
-class PaymentCreate(PaymentBase):
-    pass
-
-
-class PaymentRead(PaymentBase):
-    id: int

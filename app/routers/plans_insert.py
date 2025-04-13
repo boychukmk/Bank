@@ -14,7 +14,10 @@ router = APIRouter()
 @router.post("/plans_insert")
 async def upload_plans(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
     if not file.filename.endswith(".xlsx"):
-        raise HTTPException(status_code=400, detail="Invalid file format. Expected .xlsx")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file format. Expected .xlsx"
+        )
 
     workbook = load_workbook(filename=file.file, data_only=True)
     sheet = workbook.active
@@ -72,7 +75,10 @@ async def upload_plans(file: UploadFile = File(...), db: AsyncSession = Depends(
         plans_to_insert.append(Plan(period=parsed_date, sum=amount, category_id=category.id))
 
     if errors:
-        raise HTTPException(status_code=400, detail=errors)
+        raise HTTPException(
+            status_code=400,
+            detail=errors
+        )
 
     result = await db.execute(text("SELECT MAX(id) FROM plans"))
     max_id = result.scalar()
@@ -86,7 +92,10 @@ async def upload_plans(file: UploadFile = File(...), db: AsyncSession = Depends(
         await db.commit()
     except Exception as e:
         await db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database error: {str(e)}"
+        )
 
     return {"detail": f"{len(plans_to_insert)} plans inserted"}
 

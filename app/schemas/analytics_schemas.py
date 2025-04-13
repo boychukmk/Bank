@@ -1,19 +1,32 @@
 from pydantic import BaseModel
 from datetime import date
-from typing import Optional
+from typing import Union
 
 
-class UserCreditInfo(BaseModel):
+class BaseCreditInfo(BaseModel):
     issuance_date: date
     is_closed: bool
-    return_date: Optional[date]
-    body: Optional[float]
-    percent: Optional[float]
-    total_payments: Optional[float]
-    deadline: Optional[date]
-    overdue_days: Optional[int]
-    body_paid: Optional[float]
-    percent_paid: Optional[float]
+
+
+class ClosedCreditInfo(BaseCreditInfo):
+    is_closed: bool = True
+    return_date: date
+    body: float
+    percent: float
+    total_payments: float
+
+
+class OpenCreditInfo(BaseCreditInfo):
+    is_closed: bool = False
+    return_date: date
+    overdue_days: int
+    body: float
+    percent: float
+    body_payments: float
+    percent_payments: float
+
+
+UserCreditInfo = Union[ClosedCreditInfo, OpenCreditInfo]
 
 
 class PlansPerformanceOut(BaseModel):
@@ -26,14 +39,13 @@ class PlansPerformanceOut(BaseModel):
 
 class YearPerformanceOut(BaseModel):
     month: str
-    year: int
-    issue_count: int
-    plan_issue_sum: float
-    actual_issue_sum: float
-    issue_performance_percent: float
+    credit_count: int
+    plan_credit_sum: float
+    actual_credit_sum: float
+    credit_performance_percent: float
     payment_count: int
     plan_payment_sum: float
     actual_payment_sum: float
     payment_performance_percent: float
-    issue_share: float
-    payment_share: float
+    credit_share_percent_of_year: float
+    payment_share_percent_of_year: float
